@@ -1,43 +1,24 @@
-from database.connection import Database
-from fastapi import APIRouter, HTTPException, status
-from models.users import User, UserSignIn
+from typing import List
 
-user_router = APIRouter(
-    tags=["User"],
-)
+from fastapi import APIRouter
+from fastapi import Depends
+
+from auth.authenticate import require_role
+from database.connection import Database
+from models.users import User
+
+user_router = APIRouter(tags=["Users"])
 
 user_database = Database(User)
 
 
-@user_router.post("/signup")
-async def sign_user_up(user: User) -> dict:
-    user_exist = await User.find_one(User.email == user.email)
-
-    if user_exist:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User with email provided exists already."
-        )
-    await user_database.save(user)
-    return {
-        "message": "User created successfully"
-    }
+@user_router.get("/")
+async def retrieve_all_users(_=Depends(require_role("ADMIN"))) -> List[User]:
+    users = await user_database.get_all()
+    return users
 
 
-@user_router.post("/signin")
-async def sign_user_in(user: UserSignIn) -> dict:
-    user_exist = await User.find_one(User.email == user.email)
-    if not user_exist:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User with email does not exist."
-        )
-    if user_exist.password == user.password:
-        return {
-            "message": "User signed in successfully."
-        }
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid details passed."
-    )
+@user_router.get("/{id_}")
+async def get_user_by_id(id_, _=Depends(require_role("ADMIN"))) -> User:
+    user = await user_database.get(id_)
+    return user

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Optional
 
 from beanie import init_beanie, PydanticObjectId
 from models.events import Event
@@ -9,6 +9,7 @@ from pydantic import BaseSettings, BaseModel
 
 class Settings(BaseSettings):
     DATABASE_URL: Optional[str] = None
+    SECRET_KEY: Optional[str] = None
 
     async def initialize_database(self):
         client = AsyncIOMotorClient(self.DATABASE_URL)
@@ -23,22 +24,22 @@ class Database:
     def __init__(self, model):
         self.model = model
 
-    async def save(self, document) -> None:
+    async def save(self, document):
         await document.create()
         return
 
-    async def get(self, id_: PydanticObjectId) -> Any:
-        doc = await self.model.get(id_)
+    async def get(self, id: PydanticObjectId):
+        doc = await self.model.get(id)
         if doc:
             return doc
         return False
 
-    async def get_all(self) -> List[Any]:
+    async def get_all(self):
         docs = await self.model.find_all().to_list()
         return docs
 
-    async def update(self, id_: PydanticObjectId, body: BaseModel) -> Any:
-        doc_id = id_
+    async def update(self, id: PydanticObjectId, body: BaseModel):
+        doc_id = id
         des_body = body.dict()
 
         des_body = {k: v for k, v in des_body.items() if v is not None}
@@ -52,8 +53,8 @@ class Database:
         await doc.update(update_query)
         return doc
 
-    async def delete(self, id_: PydanticObjectId) -> bool:
-        doc = await self.get(id_)
+    async def delete(self, id: PydanticObjectId):
+        doc = await self.get(id)
         if not doc:
             return False
         await doc.delete()
