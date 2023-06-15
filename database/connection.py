@@ -1,10 +1,12 @@
 from typing import Optional
 
 from beanie import init_beanie, PydanticObjectId
-from models.events import Event
-from models.users import User
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseSettings, BaseModel
+
+from models.categories import Category
+from models.events import Event
+from models.users import User
 
 
 class Settings(BaseSettings):
@@ -14,7 +16,7 @@ class Settings(BaseSettings):
     async def initialize_database(self):
         client = AsyncIOMotorClient(self.DATABASE_URL)
         await init_beanie(database=client.get_default_database(),
-                          document_models=[Event, User])
+                          document_models=[Event, User, Category])
 
     class Config:
         env_file = ".env"
