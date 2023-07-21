@@ -6,6 +6,7 @@ from pydantic import BaseSettings, BaseModel
 
 from models.categories import Category
 from models.events import Event
+from models.furniture import Furniture
 from models.users import User
 
 
@@ -16,7 +17,7 @@ class Settings(BaseSettings):
     async def initialize_database(self):
         client = AsyncIOMotorClient(self.DATABASE_URL)
         await init_beanie(database=client.get_default_database(),
-                          document_models=[Event, User, Category])
+                          document_models=[Event, User, Category, Furniture])
 
     class Config:
         env_file = ".env"

@@ -10,6 +10,7 @@ from database.connection import Settings
 from routes.auth import auth_router
 from routes.categories import category_router
 from routes.events import event_router
+from routes.furniture import furniture_route
 from routes.profile import profile_router
 from routes.users import user_router
 
@@ -36,6 +37,7 @@ app.include_router(event_router, prefix="/event")
 app.include_router(user_router, prefix="/users")
 app.include_router(profile_router, prefix="/profile")
 app.include_router(category_router, prefix="/categories")
+app.include_router(furniture_route, prefix="/furniture")
 
 
 @app.on_event("startup")
